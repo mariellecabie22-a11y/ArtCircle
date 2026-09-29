@@ -1,3 +1,4 @@
+import { API_URL } from "../config";
 import { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -46,7 +47,7 @@ function SellArt() {
       formData.append("image", image);
 
       await axios.post(
-        "http://127.0.0.1:8000/api/marketplace/artworks/",
+        `${API_URL}/api/marketplace/artworks/`,
         formData,
         {
           headers: {

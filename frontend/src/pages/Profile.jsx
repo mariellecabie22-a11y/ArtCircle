@@ -1,3 +1,4 @@
+import { API_URL } from "../config";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Link } from "react-router-dom";
@@ -20,7 +21,7 @@ function Profile() {
     const fetchProfile = async () => {
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/api/accounts/profile/",
+          `${API_URL}/api/accounts/profile/`,
           {
             headers: {
               Authorization: `Token ${token}`,
@@ -53,7 +54,7 @@ function Profile() {
 
   try {
     const response = await axios.post(
-      "http://127.0.0.1:8000/api/accounts/profile/verification-request/",
+      `${API_URL}/api/accounts/profile/verification-request/`,
       {},
       {
         headers: {
@@ -96,7 +97,7 @@ function Profile() {
       }
 
       const response = await axios.patch(
-        "http://127.0.0.1:8000/api/accounts/profile/",
+        `${API_URL}/api/accounts/profile/`,
         formData,
         {
           headers: {
@@ -150,7 +151,7 @@ function Profile() {
   const profileImage = profile.profile_photo
     ? profile.profile_photo.startsWith("http")
       ? profile.profile_photo
-      : `http://127.0.0.1:8000${profile.profile_photo}`
+      : `${API_URL}${profile.profile_photo}`
     : null;
 
   const roleLabel = profile.role

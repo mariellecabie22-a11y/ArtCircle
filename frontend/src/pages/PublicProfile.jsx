@@ -1,3 +1,4 @@
+import { API_URL } from "../config";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
@@ -14,13 +15,13 @@ function PublicProfile() {
     const fetchPublicProfile = async () => {
       try {
         const profileResponse = await axios.get(
-          `http://127.0.0.1:8000/api/accounts/public-profile/${id}/`
+          `${API_URL}/api/accounts/public-profile/${id}/`
         );
 
         setProfile(profileResponse.data);
 
         const artworkResponse = await axios.get(
-          "http://127.0.0.1:8000/api/marketplace/artworks/"
+          `${API_URL}/api/marketplace/artworks/`
         );
 
         const userArtworks = artworkResponse.data.filter(
@@ -72,7 +73,7 @@ function PublicProfile() {
   const profileImage = profile.profile_photo
     ? profile.profile_photo.startsWith("http")
       ? profile.profile_photo
-      : `http://127.0.0.1:8000${profile.profile_photo}`
+      : `${API_URL}${profile.profile_photo}`
     : null;
 
   return (
@@ -233,7 +234,7 @@ function PublicProfile() {
                     <div className="card h-100 border-0 shadow-sm overflow-hidden">
 
                       <img
-                        src={`http://127.0.0.1:8000${artwork.image}`}
+                        src={`${API_URL}${artwork.image}`}
                         alt={artwork.title}
                         className="card-img-top artwork-image"
                       />

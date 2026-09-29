@@ -1,3 +1,4 @@
+import { API_URL } from "../config";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -18,7 +19,7 @@ function Explore() {
     const fetchArtworks = async () => {
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/api/marketplace/artworks/"
+          `${API_URL}/api/marketplace/artworks/`
         );
 
         setArtworks(response.data);
@@ -279,7 +280,7 @@ function Explore() {
             <article className="card h-100 border-0 shadow-sm overflow-hidden">
 
               <img
-                src={`http://127.0.0.1:8000${artwork.image}`}
+                src={`${API_URL}${artwork.image}`}
                 alt={artwork.title}
                 className="card-img-top artwork-image"
               />

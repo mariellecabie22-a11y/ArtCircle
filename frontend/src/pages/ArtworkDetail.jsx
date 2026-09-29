@@ -1,3 +1,4 @@
+import { API_URL } from "../config";
 import { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import axios from "axios";
@@ -31,7 +32,7 @@ function ArtworkDetail() {
     const fetchArtwork = async () => {
       try {
         const response = await axios.get(
-          `http://127.0.0.1:8000/api/marketplace/artworks/${id}/`
+          `${API_URL}/api/marketplace/artworks/${id}/`
         );
 
         setArtwork(response.data);
@@ -94,7 +95,7 @@ function ArtworkDetail() {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/marketplace/purchase-requests/",
+        `${API_URL}/api/marketplace/purchase-requests/`,
         {
           artwork: artwork.id,
           request_type: "buy",
@@ -142,7 +143,7 @@ function ArtworkDetail() {
 
     try {
       const response = await axios.post(
-        "http://127.0.0.1:8000/api/marketplace/purchase-requests/",
+        `${API_URL}/api/marketplace/purchase-requests/`,
         {
           artwork: artwork.id,
           request_type: "offer",
@@ -197,7 +198,7 @@ function ArtworkDetail() {
 
     try {
       await axios.post(
-        "http://127.0.0.1:8000/api/marketplace/custom-requests/",
+        `${API_URL}/api/marketplace/custom-requests/`,
         {
           artwork: artwork.id,
           description: customDescription,
@@ -266,7 +267,7 @@ function ArtworkDetail() {
         <div className="col-12 col-lg-7">
           <div className="card border-0 shadow-sm overflow-hidden">
             <img
-              src={`http://127.0.0.1:8000${artwork.image}`}
+              src={`${API_URL}${artwork.image}`}
               alt={artwork.title}
               className="w-100 artwork-detail-image"
             />

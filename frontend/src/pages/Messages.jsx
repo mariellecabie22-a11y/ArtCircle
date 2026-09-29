@@ -1,3 +1,4 @@
+import { API_URL } from "../config";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -23,7 +24,7 @@ function Messages() {
 
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/api/accounts/conversations/",
+          `${API_URL}/api/accounts/conversations/`,
           {
             headers: {
               Authorization: `Token ${token}`,
@@ -54,7 +55,7 @@ function Messages() {
 
       try {
         const response = await axios.get(
-          `http://127.0.0.1:8000/api/accounts/conversations/${selectedConversation.id}/messages/`,
+          `${API_URL}/api/accounts/conversations/${selectedConversation.id}/messages/`,
           {
             headers: {
               Authorization: `Token ${token}`,
@@ -87,7 +88,7 @@ function Messages() {
 
     try {
       const response = await axios.post(
-        `http://127.0.0.1:8000/api/accounts/conversations/${selectedConversation.id}/messages/`,
+        `${API_URL}/api/accounts/conversations/${selectedConversation.id}/messages/`,
         {
           body: newMessage.trim(),
         },

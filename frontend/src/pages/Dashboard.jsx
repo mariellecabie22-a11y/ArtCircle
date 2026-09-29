@@ -1,3 +1,4 @@
+import { API_URL } from "../config";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
@@ -22,7 +23,7 @@ useEffect(() => {
 
       // Get all artwork so we can match favourite IDs
       const artworkResponse = await axios.get(
-        "http://127.0.0.1:8000/api/marketplace/artworks/"
+        `${API_URL}/api/marketplace/artworks/`
       );
 
       const savedFavouriteIds = JSON.parse(
@@ -40,7 +41,7 @@ useEffect(() => {
       // Get this user's purchase requests and offers
       if (token) {
         const requestResponse = await axios.get(
-          "http://127.0.0.1:8000/api/marketplace/purchase-requests/",
+          `${API_URL}/api/marketplace/purchase-requests/`,
           {
             headers: {
               Authorization: `Token ${token}`,
@@ -413,7 +414,7 @@ useEffect(() => {
                         <div className="card h-100 border-0 shadow-sm overflow-hidden">
 
                           <img
-                            src={`http://127.0.0.1:8000${artwork.image}`}
+                            src={`${API_URL}${artwork.image}`}
                             alt={artwork.title}
                             className="w-100"
                             style={{
@@ -556,7 +557,7 @@ useEffect(() => {
 
                                       try {
                                         await axios.patch(
-                                          `http://127.0.0.1:8000/api/marketplace/purchase-requests/${request.id}/cancel/`,
+                                          `${API_URL}/api/marketplace/purchase-requests/${request.id}/cancel/`,
                                           {},
                                           {
                                             headers: {

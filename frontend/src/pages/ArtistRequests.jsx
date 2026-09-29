@@ -1,3 +1,4 @@
+import { API_URL } from "../config";
 import { useEffect, useState } from "react";
 import axios from "axios";
 
@@ -18,7 +19,7 @@ function ArtistRequests() {
 
       try {
         const response = await axios.get(
-          "http://127.0.0.1:8000/api/marketplace/artist-requests/",
+          `${API_URL}/api/marketplace/artist-requests/`,
           {
             headers: {
               Authorization: `Token ${token}`,
@@ -42,7 +43,7 @@ function ArtistRequests() {
 
     try {
       const response = await axios.patch(
-        `http://127.0.0.1:8000/api/marketplace/artist-requests/${requestId}/`,
+        `${API_URL}/api/marketplace/artist-requests/${requestId}/`,
         {
           status: newStatus,
         },
