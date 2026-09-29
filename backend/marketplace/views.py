@@ -19,6 +19,7 @@ from .serializers import (
 
 
 class ArtworkListCreateView(APIView):
+    authentication_classes = [TokenAuthentication]
     parser_classes = [MultiPartParser, FormParser]
 
     def get_permissions(self):
