@@ -12,6 +12,7 @@ class ArtworkSerializer(serializers.ModelSerializer):
     class Meta:
         model = Artwork
         fields = "__all__"
+        read_only_fields = ["artist"]
 
     def get_artist_name(self, obj):
         return f"{obj.artist.first_name} {obj.artist.last_name}"
