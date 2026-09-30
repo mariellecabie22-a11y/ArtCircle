@@ -336,6 +336,12 @@ function ArtworkDetail() {
             €{artwork.price}
           </p>
 
+          {artwork.description && (
+            <p className="text-muted mb-4">
+              {artwork.description}
+            </p>
+          )}
+
           {/* Artist information */}
           <div className="mb-3">
 

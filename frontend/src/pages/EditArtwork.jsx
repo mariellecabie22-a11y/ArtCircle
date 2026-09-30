@@ -63,7 +63,7 @@ function EditArtwork() {
     };
 
     fetchArtwork();
-  }, [id, currentUser]);
+  }, [id]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -375,8 +375,13 @@ function EditArtwork() {
               <div className="d-flex gap-2 flex-wrap">
                 <button
                   type="submit"
-                  className="btn btn-dark px-4"
+                  className="btn px-4"
                   disabled={submitting || deleting}
+                  style={{
+                    backgroundColor: "var(--sage)",
+                    color: "white",
+                    borderColor: "var(--sage)",
+                  }}
                 >
                   {submitting ? "Saving..." : "Save Changes"}
                 </button>
