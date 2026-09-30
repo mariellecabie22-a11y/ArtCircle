@@ -297,7 +297,14 @@ function Explore() {
 
                 <div className="d-flex align-items-center gap-2 flex-wrap mb-3">
                   <p className="text-secondary mb-0">
-                    by {artwork.artist_name}
+                    by{" "}
+                    <Link
+                      to={`/public-profile/${artwork.artist}`}
+                      className="text-decoration-none"
+                      style={{ color: "var(--ink)" }}
+                    >
+                      {artwork.artist_name}
+                    </Link>
                   </p>
 
                   {artwork.artist_verified && (
