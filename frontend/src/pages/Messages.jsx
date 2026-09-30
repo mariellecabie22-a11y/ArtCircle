@@ -2,6 +2,7 @@ import { API_URL } from "../config";
 import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
 import axios from "axios";
+import { Link } from "react-router-dom";
 
 function Messages() {
   const location = useLocation();
@@ -215,9 +216,8 @@ function Messages() {
                     selectedConversation?.id === conversation.id;
 
                   return (
-                    <button
+                    <div
                       key={conversation.id}
-                      type="button"
                       onClick={() =>
                         setSelectedConversation(conversation)
                       }
@@ -225,6 +225,7 @@ function Messages() {
                       style={{
                         backgroundColor: isSelected ? "#E8D8CC" : "transparent",
                         borderColor: isSelected ? "#E8D8CC" : "",
+                        cursor: "pointer",
                       }}
                     >
                       <div className="d-flex align-items-center gap-3">
@@ -246,21 +247,23 @@ function Messages() {
                         </div>
 
                         <div className="text-start min-w-0">
-                          <div className="fw-semibold">
+                          <Link
+                            to={`/public-profile/${otherParticipant?.id}`}
+                            className="fw-semibold text-decoration-none"
+                            style={{ color: "var(--ink)" }}
+                          >
                             {otherParticipant?.first_name}{" "}
                             {otherParticipant?.last_name}
-                          </div>
+                          </Link>
 
-                          <small
-                            className="text-secondary"
-                          >
+                          <small className="text-secondary d-block">
                             {conversation.last_message?.body ||
                               "No messages yet."}
                           </small>
                         </div>
 
                       </div>
-                    </button>
+                    </div>
                   );
                 })}
               </div>
@@ -292,16 +295,14 @@ function Messages() {
 
                       <div>
                         <h2 className="h5 mb-1">
-                          {
-                            getOtherParticipant(
-                              selectedConversation
-                            )?.first_name
-                          }{" "}
-                          {
-                            getOtherParticipant(
-                              selectedConversation
-                            )?.last_name
-                          }
+                          <Link
+                            to={`/public-profile/${getOtherParticipant(selectedConversation)?.id}`}
+                            className="text-decoration-none"
+                            style={{ color: "var(--ink)" }}
+                          >
+                            {getOtherParticipant(selectedConversation)?.first_name}{" "}
+                            {getOtherParticipant(selectedConversation)?.last_name}
+                          </Link>
                         </h2>
 
                         <small className="text-secondary text-capitalize">
