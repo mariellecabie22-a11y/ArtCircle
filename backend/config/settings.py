@@ -175,6 +175,7 @@ MAILERS = {
 }
 
 AUTH_USER_MODEL = "accounts.User"
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
@@ -184,3 +185,17 @@ FRONTEND_URL = os.getenv("FRONTEND_URL")
 
 if FRONTEND_URL:
     CORS_ALLOWED_ORIGINS.append(FRONTEND_URL)
+
+
+# Production security settings for Railway
+CSRF_TRUSTED_ORIGINS = [
+    "https://artcircle-production.up.railway.app",
+]
+
+if FRONTEND_URL:
+    CSRF_TRUSTED_ORIGINS.append(FRONTEND_URL)
+
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+
+CSRF_COOKIE_SECURE = not DEBUG
+SESSION_COOKIE_SECURE = not DEBUG
