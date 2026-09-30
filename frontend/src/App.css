@@ -885,3 +885,19 @@ a {
   color: var(--ink) !important;
   border-color: var(--gold) !important;
 }
+
+.password-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.password-toggle input {
+  width: auto;
+  margin: 0;
+  cursor: pointer;
+  accent-color: var(--sage);
+}

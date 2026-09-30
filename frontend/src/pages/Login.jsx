@@ -12,6 +12,7 @@ function Login() {
   });
 
   const [error, setError] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (event) => {
     setFormData({
@@ -83,11 +84,20 @@ function Login() {
             <input
               id="password"
               name="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={formData.password}
               onChange={handleChange}
               required
             />
+
+            <label className="password-toggle">
+              <input
+                type="checkbox"
+                checked={showPassword}
+                onChange={(event) => setShowPassword(event.target.checked)}
+              />
+              <span>Show password</span>
+            </label>
           </div>
 
           <button type="submit" className="auth-submit">
