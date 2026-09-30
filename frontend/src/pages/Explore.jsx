@@ -347,7 +347,7 @@ function Explore() {
 
                 <Link
                   to={`/artwork/${artwork.id}`}
-                  className="btn btn-outline-dark w-100 mt-4"
+                  className="btn btn-outline-dark marketplace-action-btn"
                 >
                   View Artwork
                 </Link>

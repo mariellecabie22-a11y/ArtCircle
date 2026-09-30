@@ -21,14 +21,17 @@ useEffect(() => {
       setActivityLoading(true);
       setActivityError("");
 
-      // Get all artwork so we can match favourite IDs
       const artworkResponse = await axios.get(
         `${API_URL}/api/marketplace/artworks/`
       );
 
-      const savedFavouriteIds = JSON.parse(
-        localStorage.getItem("artcircle_favourites") || "[]"
-      );
+      const favouriteKey = user
+        ? `artcircle_favourites_${user.id}`
+        : null;
+
+      const savedFavouriteIds = favouriteKey
+        ? JSON.parse(localStorage.getItem(favouriteKey) || "[]")
+        : [];
 
       const favouriteIds = savedFavouriteIds.map((id) => Number(id));
 

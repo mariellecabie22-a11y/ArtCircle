@@ -128,6 +128,42 @@ class ArtworkDetailView(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+    def delete(self, request, artwork_id):
+        artwork = get_object_or_404(
+            Artwork,
+            id=artwork_id,
+        )
+
+        if artwork.artist != request.user:
+            return Response(
+                {
+                    "error": "You can only delete your own artwork."
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if artwork.status == "sold":
+            return Response(
+                {
+                    "error": "Sold artwork cannot be deleted."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        artwork_title = artwork.title
+
+        if artwork.image:
+            artwork.image.delete(save=False)
+
+        artwork.delete()
+
+        return Response(
+            {
+                "message": f'"{artwork_title}" has been deleted successfully.'
+            },
+            status=status.HTTP_204_NO_CONTENT,
+        )
+
 class PurchaseRequestListCreateView(APIView):
     authentication_classes = [TokenAuthentication]
     permission_classes = [IsAuthenticated]

@@ -5,6 +5,7 @@ import Navbar from "./components/Navbar";
 import Home from "./pages/Home";
 import Explore from "./pages/Explore";
 import ArtworkDetail from "./pages/ArtworkDetail";
+import EditArtwork from "./pages/EditArtwork";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
@@ -23,6 +24,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/explore" element={<Explore />} />
         <Route path="/artwork/:id" element={<ArtworkDetail />} />
+        <Route path="/edit-artwork/:id" element={<EditArtwork />} />
         <Route path="/sell-art" element={<SellArt />} />
         <Route path="/register" element={<Register />} />
         <Route path="/login" element={<Login />} />

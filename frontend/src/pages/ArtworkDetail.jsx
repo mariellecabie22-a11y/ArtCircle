@@ -4,6 +4,8 @@ import { Link, useParams } from "react-router-dom";
 import axios from "axios";
 
 function ArtworkDetail() {
+  const storedUser = localStorage.getItem("artcircle_user");
+  const currentUser = storedUser ? JSON.parse(storedUser) : null;
   const { id } = useParams();
 
   const [artwork, setArtwork] = useState(null);
@@ -36,6 +38,20 @@ function ArtworkDetail() {
         );
 
         setArtwork(response.data);
+
+        const favouriteKey = currentUser
+          ? `artcircle_favourites_${currentUser.id}`
+          : null;
+
+        if (favouriteKey) {
+          const favourites = JSON.parse(
+            localStorage.getItem(favouriteKey) || "[]"
+          );
+
+          setIsFavourite(
+            favourites.map(Number).includes(Number(response.data.id))
+          );
+        }
       } catch (err) {
         setError("Unable to load this artwork.");
       } finally {
@@ -44,7 +60,7 @@ function ArtworkDetail() {
     };
 
     fetchArtwork();
-  }, [id]);
+  }, [id, currentUser?.id]);
 
   const handleFavourite = () => {
     const token = localStorage.getItem("artcircle_token");
@@ -54,26 +70,37 @@ function ArtworkDetail() {
       return;
     }
 
+    if (!currentUser) {
+      return;
+    }
+
+    const favouriteKey = `artcircle_favourites_${currentUser.id}`;
+
     const favourites = JSON.parse(
-      localStorage.getItem("artcircle_favourites") || "[]"
+      localStorage.getItem(favouriteKey) || "[]"
     );
 
+    const favouriteIds = favourites.map(Number);
+
     if (isFavourite) {
-      const updatedFavourites = favourites.filter(
-        (favouriteId) => favouriteId !== artwork.id
+      const updatedFavourites = favouriteIds.filter(
+        (favouriteId) => favouriteId !== Number(artwork.id)
       );
 
       localStorage.setItem(
-        "artcircle_favourites",
+        favouriteKey,
         JSON.stringify(updatedFavourites)
       );
 
       setIsFavourite(false);
     } else {
-      const updatedFavourites = [...favourites, artwork.id];
+      const updatedFavourites = [
+        ...favouriteIds,
+        Number(artwork.id),
+      ];
 
       localStorage.setItem(
-        "artcircle_favourites",
+        favouriteKey,
         JSON.stringify(updatedFavourites)
       );
 
@@ -242,6 +269,11 @@ function ArtworkDetail() {
     );
   }
 
+    const isOwner =
+      currentUser && Number(currentUser.id) === Number(artwork.artist);
+
+    const canEdit = isOwner && artwork.status !== "sold";
+
   if (error || !artwork) {
     return (
       <main className="container py-5">
@@ -284,6 +316,17 @@ function ArtworkDetail() {
           <h1 className="display-5 fw-bold mb-3">
             {artwork.title}
           </h1>
+
+          {canEdit && (
+            <div className="mb-4">
+              <Link
+                to={`/edit-artwork/${artwork.id}`}
+                className="btn gold-button"
+              >
+                Edit Listing
+              </Link>
+            </div>
+          )}
 
           <p className="fs-3 fw-bold mb-4">
             €{artwork.price}
@@ -352,7 +395,12 @@ function ArtworkDetail() {
               {/* Request to Buy */}
               <button
                 type="button"
-                className="btn btn-dark btn-lg"
+                className="btn btn-lg marketplace-action-btn"
+                style={{
+                  backgroundColor: "var(--sage)",
+                  color: "var(--white)",
+                  borderColor: "var(--sage)",
+                }}
                 onClick={handleRequestToBuy}
                 disabled={requestSubmitting}
               >
@@ -370,7 +418,7 @@ function ArtworkDetail() {
               {/* Make an Offer */}
               <button
                 type="button"
-                className="btn btn-outline-dark btn-lg"
+                className="btn btn-outline-dark btn-lg marketplace-action-btn"
                 onClick={() => {
                   setShowOfferForm(!showOfferForm);
                   setOfferMessage("");
@@ -443,7 +491,7 @@ function ArtworkDetail() {
 
             <button
               type="button"
-              className="btn btn-outline-dark btn-lg"
+              className="btn btn-outline-dark btn-lg marketplace-action-btn"
               onClick={() => {
                 setShowCustomForm(!showCustomForm);
                 setCustomMessage("");

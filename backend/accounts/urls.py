@@ -3,6 +3,7 @@ from .views import (
     RegisterView,
     LoginView,
     ProfileView,
+    DeleteAccountView,
     VerificationRequestView,
     PublicProfileView,
     ConversationListView,
@@ -14,6 +15,11 @@ urlpatterns = [
     path("register/", RegisterView.as_view(), name="register"),
     path("login/", LoginView.as_view(), name="login"),
     path("profile/", ProfileView.as_view(), name="profile"),
+    path(
+        "delete-account/",
+        DeleteAccountView.as_view(),
+        name="delete-account",
+    ),
     path(
         "profile/verification-request/",
         VerificationRequestView.as_view(),

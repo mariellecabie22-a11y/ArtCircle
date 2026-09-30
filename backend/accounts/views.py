@@ -120,6 +120,46 @@ class ProfileView(APIView):
             status=status.HTTP_400_BAD_REQUEST,
         )
 
+class DeleteAccountView(APIView):
+    authentication_classes = [TokenAuthentication]
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request):
+        user = request.user
+
+        # Protect the administrator account
+        if user.is_superuser:
+            return Response(
+                {
+                    "error": "The administrator account cannot be deleted."
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        # Delete uploaded profile photo from storage
+        profile = getattr(user, "profile", None)
+
+        if profile and profile.profile_photo:
+            profile.profile_photo.delete(save=False)
+
+        # Delete uploaded artwork images from storage
+        for artwork in user.artworks.all():
+            if artwork.image:
+                artwork.image.delete(save=False)
+
+        # Remove the authentication token
+        Token.objects.filter(user=user).delete()
+
+        # Delete the user and all related database records
+        user.delete()
+
+        return Response(
+            {
+                "message": "Your ArtCircle account has been deleted successfully."
+            },
+            status=status.HTTP_200_OK,
+        )
+
 class PublicProfileView(APIView):
     permission_classes = [AllowAny]
 

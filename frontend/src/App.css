@@ -131,8 +131,8 @@ a {
   transition: color 0.2s ease;
 }
 
-.nav-links a:hover {
-  color: var(--rose);
+.navbar .nav-links a:hover {
+  color: var(--plum) !important;
 }
 
 .nav-actions {
@@ -857,4 +857,31 @@ a {
 
 .cta-section {
   text-align: center;
+}
+
+/* Marketplace action button hover */
+.marketplace-action-btn {
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.marketplace-action-btn:hover {
+  background-color: var(--sage) !important;
+  color: var(--white) !important;
+  border-color: var(--sage) !important;
+}
+
+/* Gold ArtCircle action button */
+.gold-button {
+  background-color: var(--gold) !important;
+  color: var(--ink) !important;
+  border-color: var(--gold) !important;
+}
+
+.gold-button:hover {
+  background-color: var(--gold) !important;
+  color: var(--ink) !important;
+  border-color: var(--gold) !important;
 }

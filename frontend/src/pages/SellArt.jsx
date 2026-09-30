@@ -208,7 +208,7 @@ function SellArt() {
 
                   <button
                     type="submit"
-                    className="btn btn-primary px-4"
+                    className="btn gold-button"
                     disabled={saving}
                   >
                     {saving ? "Listing..." : "List Artwork"}

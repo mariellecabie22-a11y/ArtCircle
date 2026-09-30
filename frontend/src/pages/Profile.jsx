@@ -17,6 +17,71 @@ function Profile() {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [confirmationName, setConfirmationName] = useState("");
+  const [deleting, setDeleting] = useState(false);
+
+  const handleDeleteAccount = () => {
+    setConfirmationName("");
+    setError("");
+    setMessage("");
+    setShowDeleteModal(true);
+  };
+
+  const confirmDeleteAccount = async () => {
+    if (!token) {
+      setError("Please log in to delete your account.");
+      return;
+    }
+
+    const storedUser = localStorage.getItem("artcircle_user");
+    const currentUserId = storedUser
+      ? JSON.parse(storedUser)?.id
+      : null;
+
+    const fullName = `${firstName} ${lastName}`.trim();
+
+    if (
+      confirmationName.trim().toLowerCase() !==
+      fullName.toLowerCase()
+    ) {
+      setError("The name you entered does not match your account name.");
+      return;
+    }
+
+    setDeleting(true);
+    setError("");
+
+    try {
+      await axios.delete(
+        `${API_URL}/api/accounts/delete-account/`,
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+
+      if (currentUserId) {
+        localStorage.removeItem(
+          `artcircle_favourites_${currentUserId}`
+        );
+      }
+
+      localStorage.removeItem("artcircle_token");
+      localStorage.removeItem("artcircle_user");
+
+      window.location.href = "/";
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          "Unable to delete your account. Please try again."
+      );
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   useEffect(() => {
     const fetchProfile = async () => {
       try {
@@ -49,33 +114,33 @@ function Profile() {
   };
 
   const handleVerificationRequest = async () => {
-  setMessage("");
-  setError("");
+    setMessage("");
+    setError("");
 
-  try {
-    const response = await axios.post(
-      `${API_URL}/api/accounts/profile/verification-request/`,
-      {},
-      {
-        headers: {
-          Authorization: `Token ${token}`,
-        },
-      }
-    );
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/accounts/profile/verification-request/`,
+        {},
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
 
-    setProfile((currentProfile) => ({
-      ...currentProfile,
-      verification_status: response.data.verification_status,
-    }));
+      setProfile((currentProfile) => ({
+        ...currentProfile,
+        verification_status: response.data.verification_status,
+      }));
 
-    setMessage("Your verification request has been submitted.");
-  } catch (err) {
-    setError(
-      err.response?.data?.error ||
-        "Could not submit your verification request."
-    );
-  }
-};
+      setMessage("Your verification request has been submitted.");
+    } catch (err) {
+      setError(
+        err.response?.data?.error ||
+          "Could not submit your verification request."
+      );
+    }
+  };
 
   const handleSave = async (event) => {
     event.preventDefault();
@@ -244,59 +309,59 @@ function Profile() {
 
               {/* Verification */}
               <div className="mt-4">
-                 {profile.verification_status === "not_requested" && (
-              <>
-                <p className="small text-muted mb-2">
-                Want to become a verified artist?
-                </p>
+                {profile.verification_status === "not_requested" && (
+                  <>
+                    <p className="small text-muted mb-2">
+                      Want to become a verified artist?
+                    </p>
 
-              <button
-                type="button"
-                className="btn btn-outline-primary btn-sm"
-                onClick={handleVerificationRequest}
-              >
-                Request Verification
-              </button>
-              </>
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary btn-sm"
+                      onClick={handleVerificationRequest}
+                    >
+                      Request Verification
+                    </button>
+                  </>
                 )}
 
-            {profile.verification_status === "pending" && (
-              <div className="alert alert-warning py-2 mb-0">
-                <strong>Verification Pending</strong>
-              <div className="small mt-1">
-                Your request is waiting for admin review.
-              </div>
-              </div>
+                {profile.verification_status === "pending" && (
+                  <div className="alert alert-warning py-2 mb-0">
+                    <strong>Verification Pending</strong>
+                    <div className="small mt-1">
+                      Your request is waiting for admin review.
+                    </div>
+                  </div>
                 )}
 
-            {profile.verification_status === "approved" && (
-              <div className="alert alert-success py-2 mb-0">
-              <strong>✓ Verified Artist</strong>
-              <div className="small mt-1">
-                Your profile has been verified by an administrator.
-              </div>
-              </div>
+                {profile.verification_status === "approved" && (
+                  <div className="alert alert-success py-2 mb-0">
+                    <strong>✓ Verified Artist</strong>
+                    <div className="small mt-1">
+                      Your profile has been verified by an administrator.
+                    </div>
+                  </div>
                 )}
 
-            {profile.verification_status === "rejected" && (
-              <>
-            <div className="alert alert-danger py-2 mb-2">
-            <strong>Verification Not Approved</strong>
-            <div className="small mt-1">
-              You can submit another request for review.
-            </div>
-            </div>
+                {profile.verification_status === "rejected" && (
+                  <>
+                    <div className="alert alert-danger py-2 mb-2">
+                      <strong>Verification Not Approved</strong>
+                      <div className="small mt-1">
+                        You can submit another request for review.
+                      </div>
+                    </div>
 
-            <button
-              type="button"
-              className="btn btn-outline-primary btn-sm"
-              onClick={handleVerificationRequest}
-            >
-                Request Verification Again
-            </button>
-            </>
+                    <button
+                      type="button"
+                      className="btn btn-outline-primary btn-sm"
+                      onClick={handleVerificationRequest}
+                    >
+                      Request Verification Again
+                    </button>
+                  </>
                 )}
-            </div>
+              </div>
 
               <hr />
 
@@ -325,7 +390,7 @@ function Profile() {
                 </div>
               )}
 
-              {error && (
+              {error && !showDeleteModal && (
                 <div className="alert alert-danger">
                   {error}
                 </div>
@@ -445,7 +510,6 @@ function Profile() {
 
                 {/* Buttons */}
                 <div className="d-flex justify-content-end gap-2 pt-2">
-
                   <Link
                     to="/dashboard"
                     className="btn btn-outline-secondary px-4"
@@ -465,7 +529,36 @@ function Profile() {
                   >
                     {saving ? "Saving..." : "Save Changes"}
                   </button>
+                </div>
 
+                {/* Delete Account */}
+                <div
+                  className="mt-5 pt-4"
+                  style={{
+                    borderTop: "1px solid var(--border)",
+                  }}
+                >
+                  <h2 className="h6 fw-semibold mb-2">
+                    Delete Account
+                  </h2>
+
+                  <p className="small text-muted mb-3">
+                    Permanently delete your ArtCircle account, profile,
+                    artwork listings and associated activity.
+                  </p>
+
+                  <button
+                    type="button"
+                    className="btn px-4"
+                    style={{
+                      backgroundColor: "var(--rose)",
+                      color: "white",
+                      borderColor: "var(--rose)",
+                    }}
+                    onClick={handleDeleteAccount}
+                  >
+                    Delete Account
+                  </button>
                 </div>
 
               </form>
@@ -474,6 +567,105 @@ function Profile() {
           </div>
         </div>
       </div>
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteModal && (
+        <div
+          className="position-fixed top-0 start-0 w-100 h-100 d-flex align-items-center justify-content-center"
+          style={{
+            backgroundColor: "rgba(40, 39, 43, 0.55)",
+            zIndex: 1050,
+            padding: "20px",
+          }}
+        >
+          <div
+            className="card border-0 shadow-lg"
+            style={{
+              maxWidth: "500px",
+              width: "100%",
+              backgroundColor: "var(--cream)",
+            }}
+          >
+            <div className="card-body p-4 p-md-5">
+
+              <h2 className="h4 fw-semibold mb-3">
+                Are you sure you want to delete your account?
+              </h2>
+
+              <p className="text-muted mb-2">
+                This will permanently delete your ArtCircle account,
+                profile, artwork listings and associated activity.
+              </p>
+
+              <p className="fw-semibold mb-4">
+                This action cannot be undone.
+              </p>
+
+              <label
+                htmlFor="confirmationName"
+                className="form-label fw-semibold"
+              >
+                Type your full name to confirm
+              </label>
+
+              <input
+                type="text"
+                id="confirmationName"
+                className="form-control mb-2"
+                value={confirmationName}
+                onChange={(e) => {
+                  setConfirmationName(e.target.value);
+                  setError("");
+                }}
+                placeholder={`${firstName} ${lastName}`}
+                autoFocus
+              />
+
+              <div className="form-text mb-3">
+                Type <strong>{firstName} {lastName}</strong> exactly as
+                shown on your account.
+              </div>
+
+              {error && (
+                <div className="alert alert-danger py-2">
+                  {error}
+                </div>
+              )}
+
+              <div className="d-flex justify-content-end gap-2 mt-4">
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary px-4"
+                  onClick={() => {
+                    setShowDeleteModal(false);
+                    setConfirmationName("");
+                    setError("");
+                  }}
+                  disabled={deleting}
+                >
+                  Cancel
+                </button>
+
+                <button
+                  type="button"
+                  className="btn px-4"
+                  style={{
+                    backgroundColor: "var(--rose)",
+                    color: "white",
+                    borderColor: "var(--rose)",
+                  }}
+                  onClick={confirmDeleteAccount}
+                  disabled={deleting || !confirmationName.trim()}
+                >
+                  {deleting ? "Deleting..." : "Delete Account"}
+                </button>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   );
 }
