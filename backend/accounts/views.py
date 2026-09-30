@@ -283,6 +283,7 @@ class ConversationListView(APIView):
             .filter(participants=other_user)
             .annotate(participant_count=Count("participants"))
             .filter(participant_count=2)
+            .order_by("id")
             .first()
         )
 
@@ -298,7 +299,7 @@ class ConversationListView(APIView):
 
         return Response(
             serializer.data,
-            status=status.HTTP_201_CREATED,
+            status=status.HTTP_200_OK,
         )
 
 

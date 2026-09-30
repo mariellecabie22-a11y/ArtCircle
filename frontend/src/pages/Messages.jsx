@@ -1,8 +1,10 @@
 import { API_URL } from "../config";
 import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
 import axios from "axios";
 
 function Messages() {
+  const location = useLocation();
   const [conversations, setConversations] = useState([]);
   const [selectedConversation, setSelectedConversation] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -34,8 +36,21 @@ function Messages() {
 
         setConversations(response.data);
 
-        if (response.data.length > 0) {
+        const requestedConversationId =
+          location.state?.conversationId;
+
+        const requestedConversation = response.data.find(
+          (conversation) =>
+            Number(conversation.id) ===
+            Number(requestedConversationId)
+        );
+
+        if (requestedConversation) {
+          setSelectedConversation(requestedConversation);
+        } else if (response.data.length > 0) {
           setSelectedConversation(response.data[0]);
+        } else {
+          setSelectedConversation(null);
         }
       } catch (err) {
         setError("Unable to load your conversations.");
@@ -45,7 +60,7 @@ function Messages() {
     };
 
     fetchConversations();
-  }, [token]);
+  }, [token, location.state?.conversationId]);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -206,9 +221,11 @@ function Messages() {
                       onClick={() =>
                         setSelectedConversation(conversation)
                       }
-                      className={`list-group-item list-group-item-action p-3 ${
-                        isSelected ? "active" : ""
-                      }`}
+                      className="list-group-item list-group-item-action p-3"
+                      style={{
+                        backgroundColor: isSelected ? "#E8D8CC" : "transparent",
+                        borderColor: isSelected ? "#E8D8CC" : "",
+                      }}
                     >
                       <div className="d-flex align-items-center gap-3">
 
@@ -235,11 +252,7 @@ function Messages() {
                           </div>
 
                           <small
-                            className={
-                              isSelected
-                                ? "text-white-50"
-                                : "text-secondary"
-                            }
+                            className="text-secondary"
                           >
                             {conversation.last_message?.body ||
                               "No messages yet."}
@@ -333,13 +346,14 @@ function Messages() {
                               }`}
                             >
                               <div
-                                className={`px-3 py-2 rounded-4 ${
-                                  isOwnMessage
-                                    ? "bg-dark text-white"
-                                    : "bg-white border"
-                                }`}
+                                className="px-3 py-2 rounded-4"
                                 style={{
                                   maxWidth: "75%",
+                                  backgroundColor: isOwnMessage ? "#F3E8DF" : "#FFFFFF",
+                                  color: "var(--ink)",
+                                  border: isOwnMessage
+                                    ? "1px solid #E8D8CC"
+                                    : "1px solid var(--border)",
                                 }}
                               >
                                 <p className="mb-1">
@@ -347,11 +361,7 @@ function Messages() {
                                 </p>
 
                                 <small
-                                  className={
-                                    isOwnMessage
-                                      ? "text-white-50"
-                                      : "text-secondary"
-                                  }
+                                  className="text-secondary"
                                 >
                                   {new Date(
                                     message.created_at
@@ -385,7 +395,12 @@ function Messages() {
 
                       <button
                         type="submit"
-                        className="btn btn-dark"
+                        className="btn"
+                        style={{
+                          backgroundColor: "var(--plum)",
+                          borderColor: "var(--plum)",
+                          color: "white",
+                        }}
                         disabled={!newMessage.trim()}
                       >
                         Send

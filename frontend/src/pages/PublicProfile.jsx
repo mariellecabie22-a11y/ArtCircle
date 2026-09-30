@@ -1,15 +1,20 @@
 import { API_URL } from "../config";
 import { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import axios from "axios";
 
 function PublicProfile() {
   const { id } = useParams();
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("artcircle_token");
 
   const [profile, setProfile] = useState(null);
   const [artworks, setArtworks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [messageLoading, setMessageLoading] = useState(false);
+  const [messageError, setMessageError] = useState("");
 
   useEffect(() => {
     const fetchPublicProfile = async () => {
@@ -40,6 +45,45 @@ function PublicProfile() {
 
     fetchPublicProfile();
   }, [id]);
+
+  const handleMessage = async () => {
+    if (!token) {
+      setMessageError("Please log in to message this user.");
+      return;
+    }
+
+    setMessageLoading(true);
+    setMessageError("");
+
+    try {
+      const response = await axios.post(
+        `${API_URL}/api/accounts/conversations/`,
+        {
+          participant_id: Number(id),
+        },
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+
+      // Open the Messages tab and tell it which
+      // conversation should be selected.
+      navigate("/messages", {
+        state: {
+          conversationId: response.data.id,
+        },
+      });
+    } catch (err) {
+      setMessageError(
+        err.response?.data?.error ||
+          "Unable to start a conversation. Please try again."
+      );
+    } finally {
+      setMessageLoading(false);
+    }
+  };
 
   if (loading) {
     return (
@@ -160,10 +204,50 @@ function PublicProfile() {
             </p>
           )}
 
-          <p className="text-secondary mb-0 mx-auto"
-             style={{ maxWidth: "700px" }}>
+          <p
+            className="text-secondary mb-4 mx-auto"
+            style={{ maxWidth: "700px" }}
+          >
             {profile.bio || "This user has not added a bio yet."}
           </p>
+
+          {/* Message button */}
+          {messageError && (
+            <div
+              className="alert alert-danger mx-auto mb-3"
+              style={{ maxWidth: "500px" }}
+            >
+              {messageError}
+            </div>
+          )}
+
+          <button
+            type="button"
+            className="btn px-4"
+            onClick={handleMessage}
+            disabled={messageLoading}
+            style={{
+              backgroundColor: "var(--plum)",
+              color: "var(--white)",
+              border: "none",
+            }}
+          >
+            {messageLoading ? (
+              <>
+                <span
+                  className="spinner-border spinner-border-sm me-2"
+                  role="status"
+                  aria-hidden="true"
+                />
+                Opening Messages...
+              </>
+            ) : (
+              <>
+                💬 Message {profile.first_name}
+              </>
+            )}
+          </button>
+
         </div>
       </div>
 

@@ -11,9 +11,13 @@ function Dashboard() {
   const token = localStorage.getItem("artcircle_token");
 
 const [favouriteArtworks, setFavouriteArtworks] = useState([]);
-const [purchaseRequests, setPurchaseRequests] = useState([]);
-const [activityLoading, setActivityLoading] = useState(true);
-const [activityError, setActivityError] = useState("");
+  const [purchaseRequests, setPurchaseRequests] = useState([]);
+  const [incomingRequests, setIncomingRequests] = useState([]);
+  const [activityLoading, setActivityLoading] = useState(true);
+  const [activityError, setActivityError] = useState("");
+  const [incomingLoading, setIncomingLoading] = useState(false);
+  const [incomingError, setIncomingError] = useState("");
+  const [updatingRequestId, setUpdatingRequestId] = useState(null);
 
 useEffect(() => {
   const fetchDashboardActivity = async () => {
@@ -41,29 +45,75 @@ useEffect(() => {
 
       setFavouriteArtworks(favouriteMatches);
 
-      // Get this user's purchase requests and offers
+      // Get this user's purchase requests/offers as a buyer
+      // AND incoming requests/offers for artwork owned by this user.
       if (token) {
-        const requestResponse = await axios.get(
-          `${API_URL}/api/marketplace/purchase-requests/`,
-          {
-            headers: {
-              Authorization: `Token ${token}`,
-            },
-          }
-        );
+        setIncomingLoading(true);
+        setIncomingError("");
+
+        const headers = {
+          Authorization: `Token ${token}`,
+        };
+
+        const [requestResponse, incomingResponse] = await Promise.all([
+          axios.get(
+            `${API_URL}/api/marketplace/purchase-requests/`,
+            { headers }
+          ),
+          axios.get(
+            `${API_URL}/api/marketplace/artist-requests/`,
+            { headers }
+          ),
+        ]);
 
         setPurchaseRequests(requestResponse.data);
+        setIncomingRequests(incomingResponse.data);
       }
     } catch (err) {
       console.error("Dashboard activity error:", err);
       setActivityError("Unable to load your activity.");
+      setIncomingError("Unable to load incoming requests.");
     } finally {
       setActivityLoading(false);
+      setIncomingLoading(false);
     }
   };
 
   fetchDashboardActivity();
 }, [token]);
+
+  const handleIncomingRequestStatus = async (requestId, newStatus) => {
+    try {
+      setUpdatingRequestId(requestId);
+      setIncomingError("");
+
+      const response = await axios.patch(
+        `${API_URL}/api/marketplace/artist-requests/${requestId}/`,
+        {
+          status: newStatus,
+        },
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+          },
+        }
+      );
+
+      setIncomingRequests((currentRequests) =>
+        currentRequests.map((request) =>
+          request.id === requestId ? response.data : request
+        )
+      );
+    } catch (err) {
+      console.error("Incoming request update error:", err);
+      setIncomingError(
+        err.response?.data?.error ||
+          `Unable to ${newStatus} this request.`
+      );
+    } finally {
+      setUpdatingRequestId(null);
+    }
+  };
 
   return (
     <main className="container py-4 py-lg-5">
@@ -226,7 +276,7 @@ useEffect(() => {
                 </p>
 
                 <a
-                  href="#purchase-activity"
+                  href="#incoming-requests"
                   className="btn btn-outline-secondary mt-3"
                 >
                   View Offers & Requests
@@ -353,7 +403,7 @@ useEffect(() => {
           </p>
 
           <h2 className="h3 fw-semibold mb-0">
-            Saved Art & Requests
+            Saved Arts & Requests
           </h2>
         </div>
 
@@ -393,7 +443,7 @@ useEffect(() => {
                     </p>
 
                     <h3 className="h4 fw-semibold mb-0">
-                      Your Saved Artwork
+                      Your Saved Artworks
                     </h3>
                   </div>
 
@@ -457,6 +507,236 @@ useEffect(() => {
 
               </div>
             </div>
+
+      {/* Incoming Requests & Offers — artwork owned by this user */}
+      <section id="incoming-requests" className="mb-5">
+        <div className="mb-4">
+          <p
+            className="small fw-semibold text-uppercase mb-1"
+            style={{ color: "var(--rose)" }}
+          >
+            Seller Activity
+          </p>
+
+          <h2 className="h3 fw-semibold mb-0">
+            Incoming Requests & Offers
+          </h2>
+
+          <p className="text-muted mt-2 mb-0">
+            Requests and offers from buyers and for artworks you have listed.
+          </p>
+        </div>
+
+        {incomingError && (
+          <div className="alert alert-danger">
+            {incomingError}
+          </div>
+        )}
+
+        {incomingLoading ? (
+          <div className="card border-0 shadow-sm">
+            <div className="card-body p-4 text-center">
+              <div className="spinner-border" role="status">
+                <span className="visually-hidden">
+                  Loading...
+                </span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          <div
+            className="card border-0 shadow-sm"
+            style={{ backgroundColor: "rgba(255, 255, 255, 0.82)" }}
+          >
+            <div className="card-body p-4 p-md-5">
+              <div className="d-flex justify-content-between align-items-center mb-4">
+                <div>
+                  <p
+                    className="small fw-semibold text-uppercase mb-1"
+                    style={{ color: "var(--rose)" }}
+                  >
+                    My Artworks
+                  </p>
+
+                  <h3 className="h4 fw-semibold mb-0">
+                    Manage Listings
+                  </h3>
+                </div>
+
+                <span className="badge rounded-pill bg-light text-dark">
+                  {incomingRequests.length}
+                </span>
+              </div>
+
+              {incomingRequests.length === 0 ? (
+                <p className="text-muted mb-0">
+                  You don't have any incoming purchase requests or offers
+                  yet.
+                </p>
+              ) : (
+                <div className="table-responsive">
+                  <table className="table align-middle mb-0">
+                    <thead>
+                      <tr>
+                        <th>Type</th>
+                        <th>Artwork</th>
+                        <th>From</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th className="text-md-end">Action</th>
+                      </tr>
+                    </thead>
+
+                    <tbody>
+                      {incomingRequests.map((request) => {
+                        const buyerId =
+                          typeof request.buyer === "object" && request.buyer !== null
+                            ? request.buyer.id
+                            : request.buyer;
+
+                        const buyerName =
+                          request.buyer_name ||
+                          request.buyer_display_name ||
+                          (typeof request.buyer === "object" && request.buyer !== null
+                            ? [request.buyer.first_name, request.buyer.last_name]
+                                .filter(Boolean)
+                                .join(" ")
+                            : typeof request.buyer === "string"
+                            ? request.buyer
+                            : "Buyer");
+
+                        const isPending = request.status === "pending";
+                        const isUpdating =
+                          updatingRequestId === request.id;
+
+                        return (
+                          <tr key={request.id}>
+                            <td>
+                              <span className="small">
+                                {request.request_type === "offer"
+                                  ? "Make an Offer"
+                                  : "Request to Buy"}
+                              </span>
+                            </td>
+
+                            <td>
+                              <Link
+                                to={`/artwork/${request.artwork}`}
+                                className="fw-semibold text-decoration-none"
+                              >
+                                {request.artwork_title}
+                              </Link>
+                            </td>
+
+                            <td>
+                              {buyerId ? (
+                                <Link
+                                  to={`/public-profile/${buyerId}`}
+                                  className="small fw-semibold text-decoration-none"
+                                >
+                                  {buyerName}
+                                </Link>
+                              ) : (
+                                <span className="small">
+                                  {buyerName}
+                                </span>
+                              )}
+                            </td>
+
+                            <td>
+                              <span className="fw-semibold">
+                                €{request.offered_price}
+                              </span>
+                            </td>
+
+                            <td>
+                              <span
+                              className={
+                                request.status === "accepted"
+                                  ? "badge"
+                                  : request.status === "declined"
+                                  ? "badge"
+                                  : request.status === "cancelled"
+                                  ? "badge bg-secondary"
+                                  : "badge"
+                              }
+                              style={{
+                                backgroundColor:
+                                  request.status === "accepted"
+                                    ? "var(--sage)"
+                                    : request.status === "declined"
+                                    ? "var(--rose)"
+                                    : request.status === "pending"
+                                    ? "var(--gold)"
+                                    : undefined,
+                                color:
+                                  request.status === "pending"
+                                    ? "var(--ink)"
+                                    : "white",
+                              }}
+                            >
+                              {request.status}
+                            </span>
+                            </td>
+
+                            <td className="text-md-end">
+                              {isPending ? (
+                                <div className="d-flex flex-column flex-md-row gap-2 justify-content-md-end">
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm btn-success"
+                                    style={{
+                                      backgroundColor: "var(--sage)",
+                                      borderColor: "var(--sage)",
+                                      color: "white",
+                                    }}
+                                    disabled={isUpdating}
+                                    onClick={() =>
+                                      handleIncomingRequestStatus(
+                                        request.id,
+                                        "accepted"
+                                      )
+                                    }
+                                  >
+                                    {isUpdating ? "Updating..." : "Accept"}
+                                  </button>
+
+                                  <button
+                                    type="button"
+                                    className="btn btn-sm btn-outline-danger"
+                                    style={{
+                                      color: "var(--rose)",
+                                      borderColor: "var(--rose)",
+                                      backgroundColor: "transparent",
+                                    }}
+                                    disabled={isUpdating}
+                                    onClick={() =>
+                                      handleIncomingRequestStatus(
+                                        request.id,
+                                        "declined"
+                                      )
+                                    }
+                                  >
+                                    Decline
+                                  </button>
+                                </div>
+                              ) : (
+                                <span className="text-muted small">
+                                  —
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        );
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+      </section>
 
             {/* Requests & Offers */}
             <div
@@ -523,13 +803,27 @@ useEffect(() => {
                               <span
                                 className={
                                   request.status === "accepted"
-                                    ? "badge bg-success"
+                                    ? "badge"
                                     : request.status === "declined"
-                                    ? "badge bg-danger"
+                                    ? "badge"
                                     : request.status === "cancelled"
                                     ? "badge bg-secondary"
-                                    : "badge bg-warning text-dark"
+                                    : "badge"
                                 }
+                                style={{
+                                  backgroundColor:
+                                    request.status === "accepted"
+                                      ? "var(--sage)"
+                                      : request.status === "declined"
+                                      ? "var(--rose)"
+                                      : request.status === "pending"
+                                      ? "var(--gold)"
+                                      : undefined,
+                                  color:
+                                    request.status === "pending"
+                                      ? "var(--ink)"
+                                      : "white",
+                                }}
                               >
                                 {request.status}
                               </span>

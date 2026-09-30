@@ -8,8 +8,12 @@ from rest_framework.parsers import MultiPartParser, FormParser
 from decimal import Decimal, InvalidOperation
 
 from django.db import transaction
+from django.db.models import Count
 from django.shortcuts import get_object_or_404
 from config.brevo import send_brevo_email
+
+from accounts.models import Conversation, Message
+
 from .models import Artwork, PurchaseRequest, CustomArtworkRequest
 from .serializers import (
     ArtworkSerializer, 
@@ -347,6 +351,7 @@ class CustomArtworkRequestListCreateView(APIView):
                 status=status.HTTP_400_BAD_REQUEST,
             )
 
+        # Create the custom artwork request
         custom_request = CustomArtworkRequest.objects.create(
             artwork=artwork,
             artist=artwork.artist,
@@ -354,6 +359,48 @@ class CustomArtworkRequestListCreateView(APIView):
             description=description,
             budget=budget if budget else None,
         )
+
+        # Find an existing conversation between the requester and artist
+        conversation = (
+            Conversation.objects
+            .filter(participants=request.user)
+            .filter(participants=artwork.artist)
+            .annotate(participant_count=Count("participants"))
+            .filter(participant_count=2)
+            .order_by("id")
+            .first()
+        )
+
+        # Create a conversation if one does not already exist
+        if conversation is None:
+            conversation = Conversation.objects.create()
+
+            conversation.participants.add(
+                request.user,
+                artwork.artist,
+            )
+
+        # Format the budget for the message
+        budget_text = (
+            f"€{budget}"
+            if budget
+            else "No budget specified"
+        )
+
+        # Create the initial message containing the custom request
+        Message.objects.create(
+            conversation=conversation,
+            sender=request.user,
+            body=(
+                f"🎨 Custom Artwork Request\n\n"
+                f"Artwork: {artwork.title}\n\n"
+                f"Request:\n{description}\n\n"
+                f"Budget: {budget_text}"
+            ),
+        )
+
+        # Update conversation timestamp so it appears at the top of Messages
+        conversation.save()
 
         serializer = CustomArtworkRequestSerializer(
             custom_request
