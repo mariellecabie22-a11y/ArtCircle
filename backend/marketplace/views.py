@@ -65,6 +65,14 @@ class ArtworkListCreateView(APIView):
         )
 
 class ArtworkDetailView(APIView):
+    authentication_classes = [TokenAuthentication]
+    parser_classes = [MultiPartParser, FormParser]
+
+    def get_permissions(self):
+        if self.request.method == "GET":
+            return [AllowAny()]
+
+        return [IsAuthenticated()]
 
     def get(self, request, artwork_id):
         artwork = get_object_or_404(
@@ -77,6 +85,47 @@ class ArtworkDetailView(APIView):
         return Response(
             serializer.data,
             status=status.HTTP_200_OK,
+        )
+
+    def patch(self, request, artwork_id):
+        artwork = get_object_or_404(
+            Artwork,
+            id=artwork_id,
+        )
+
+        if artwork.artist != request.user:
+            return Response(
+                {
+                    "error": "You can only edit your own artwork."
+                },
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
+        if artwork.status == "sold":
+            return Response(
+                {
+                    "error": "Sold artwork cannot be edited."
+                },
+                status=status.HTTP_400_BAD_REQUEST,
+            )
+
+        serializer = ArtworkSerializer(
+            artwork,
+            data=request.data,
+            partial=True,
+        )
+
+        if serializer.is_valid():
+            artwork = serializer.save()
+
+            return Response(
+                ArtworkSerializer(artwork).data,
+                status=status.HTTP_200_OK,
+            )
+
+        return Response(
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST,
         )
 
 class PurchaseRequestListCreateView(APIView):
