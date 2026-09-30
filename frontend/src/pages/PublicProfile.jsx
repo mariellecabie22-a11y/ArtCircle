@@ -179,31 +179,6 @@ function PublicProfile() {
             </span>
           )}
 
-          {profile.rating !== null && profile.review_count > 0 ? (
-            <div className="mb-3">
-              <span
-                style={{
-                  color: "var(--gold)",
-                  fontSize: "1.2rem",
-                }}
-              >
-                ★
-              </span>{" "}
-              <strong>{profile.rating}</strong>
-              <span className="text-muted">
-                {" "}
-                · {profile.review_count}{" "}
-                {profile.review_count === 1
-                  ? "review"
-                  : "reviews"}
-              </span>
-            </div>
-          ) : (
-            <p className="text-muted mb-3">
-              No reviews yet
-            </p>
-          )}
-
           <p
             className="text-secondary mb-4 mx-auto"
             style={{ maxWidth: "700px" }}
@@ -250,54 +225,6 @@ function PublicProfile() {
 
         </div>
       </div>
-
-      {/* Reviews */}
-      <section className="mb-4">
-        <div className="card border-0 shadow-sm">
-          <div className="card-body p-4 p-md-5">
-
-            <h2 className="h4 mb-4">
-              Reviews
-            </h2>
-
-            {profile.reviews && profile.reviews.length > 0 ? (
-              <div className="d-grid gap-3">
-                {profile.reviews.map((review) => (
-                  <div
-                    key={review.id}
-                    className="border rounded-3 p-3"
-                  >
-                    <div className="mb-2">
-                      <span
-                        style={{
-                          color: "var(--gold)",
-                        }}
-                      >
-                        {"★".repeat(review.rating)}
-                      </span>
-                    </div>
-
-                    {review.comment && (
-                      <p className="mb-2">
-                        "{review.comment}"
-                      </p>
-                    )}
-
-                    <small className="text-muted">
-                      — {review.reviewer_name}
-                    </small>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <p className="text-muted mb-0">
-                No reviews yet.
-              </p>
-            )}
-
-          </div>
-        </div>
-      </section>
 
       {/* Artwork */}
       <section>

@@ -362,36 +362,6 @@ function ArtworkDetail() {
               )}
             </div>
 
-            <div className="mt-2">
-              {artwork.artist_review_count > 0 ? (
-                <span>
-                  <span
-                    style={{
-                      color: "var(--gold)",
-                    }}
-                  >
-                    ★
-                  </span>{" "}
-                  <strong>
-                    {artwork.artist_rating}
-                  </strong>
-
-                  <span className="text-muted">
-                    {" "}
-                    · {artwork.artist_review_count}{" "}
-                    {artwork.artist_review_count === 1
-                      ? "review"
-                      : "reviews"}
-                  </span>
-                </span>
-              ) : (
-                <span className="text-muted small">
-                  No reviews yet
-                </span>
-              )}
-            </div>
-          </div>
-
           {/* Owner / Buyer actions */}
 
           {isOwner ? (
@@ -518,7 +488,7 @@ function ArtworkDetail() {
                 {showCustomForm && (
                   <form
                     onSubmit={handleCustomRequest}
-                    className="border rounded-3 p-3 bg-light"
+                    className="border rounded-1.5 p-1.5 bg-light"
                   >
                     <h5 className="mb-3">
                       Request Custom Art
@@ -615,8 +585,9 @@ function ArtworkDetail() {
 
                   </div>
                 </div>
-              </main>
-            );
-          }
+              </div>
+            </main>
+          );
+        }
 
 export default ArtworkDetail;

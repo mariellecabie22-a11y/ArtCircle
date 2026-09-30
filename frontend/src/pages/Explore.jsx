@@ -312,25 +312,6 @@ function Explore() {
                   )}
                 </div>
 
-                {artwork.artist_review_count > 0 ? (
-                  <p className="small mb-3">
-                    <span style={{ color: "var(--gold)" }}>
-                      ★
-                    </span>{" "}
-                    <strong>{artwork.artist_rating}</strong>{" "}
-                    <span className="text-secondary">
-                      ({artwork.artist_review_count}{" "}
-                      {artwork.artist_review_count === 1
-                        ? "review"
-                        : "reviews"})
-                    </span>
-                  </p>
-                ) : (
-                  <p className="small text-secondary mb-3">
-                    No reviews yet
-                  </p>
-                )}
-
                 <p className="text-secondary">
                   {artwork.description}
                 </p>
