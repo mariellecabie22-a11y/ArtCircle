@@ -16,6 +16,7 @@ function Register() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleChange = (event) => {
     setFormData({
@@ -145,7 +146,7 @@ function Register() {
             <input
               id="password"
               name="password"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={formData.password}
               onChange={handleChange}
               minLength="8"
@@ -165,12 +166,21 @@ function Register() {
             <input
               id="password2"
               name="password2"
-              type="password"
+              type={showPassword ? "text" : "password"}
               value={formData.password2}
               onChange={handleChange}
               minLength="8"
               required
             />
+
+            <label className="password-toggle">
+              <input
+                type="checkbox"
+                checked={showPassword}
+                onChange={(event) => setShowPassword(event.target.checked)}
+              />
+              <span>Show password</span>
+            </label>
           </div>
 
           <button
