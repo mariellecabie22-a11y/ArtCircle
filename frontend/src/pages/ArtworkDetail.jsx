@@ -270,7 +270,11 @@ function ArtworkDetail() {
   }
 
     const isOwner =
-      currentUser && Number(currentUser.id) === Number(artwork.artist);
+      Boolean(
+        currentUser &&
+        artwork &&
+        Number(currentUser.id) === Number(artwork.artist)
+      );
 
     const canEdit = isOwner && artwork.status !== "sold";
 
@@ -388,218 +392,231 @@ function ArtworkDetail() {
             </div>
           </div>
 
-          {/* Available / Sold */}
-          {artwork.status === "available" ? (
-            <div className="d-grid gap-2">
+          {/* Owner / Buyer actions */}
 
-              {/* Request to Buy */}
-              <button
-                type="button"
-                className="btn btn-lg marketplace-action-btn"
-                style={{
-                  backgroundColor: "var(--sage)",
-                  color: "var(--white)",
-                  borderColor: "var(--sage)",
-                }}
-                onClick={handleRequestToBuy}
-                disabled={requestSubmitting}
-              >
-                {requestSubmitting
-                  ? "Sending..."
-                  : "Request to Buy"}
-              </button>
+          {isOwner ? (
+            <div className="mt-3">
+              <div className="alert alert-light border mb-3">
+                <strong>This is your listing.</strong>
+                <br />
+                <span className="text-muted">
+                  Buyer actions are not available for your own artwork.
+                </span>
+              </div>
+            </div>
+          ) : (
+            <>
+              {/* Available / Sold */}
+              {artwork.status === "available" ? (
+                <div className="d-grid gap-2">
 
-              {requestMessage && (
-                <div className="alert alert-info mt-2 mb-0">
-                  {requestMessage}
+                  {/* Request to Buy */}
+                  <button
+                    type="button"
+                    className="btn btn-outline-dark btn-lg marketplace-action-btn"
+                    onClick={handleRequestToBuy}
+                    disabled={requestSubmitting}
+                  >
+                    {requestSubmitting
+                      ? "Sending..."
+                      : "Request to Buy"}
+                  </button>
+
+                  {requestMessage && (
+                    <div className="alert alert-info mt-2 mb-0">
+                      {requestMessage}
+                    </div>
+                  )}
+
+                  {/* Make an Offer */}
+                  <button
+                    type="button"
+                    className="btn btn-outline-dark btn-lg marketplace-action-btn"
+                    onClick={() => {
+                      setShowOfferForm(!showOfferForm);
+                      setOfferMessage("");
+                    }}
+                  >
+                    {showOfferForm
+                      ? "Cancel Offer"
+                      : "Make an Offer"}
+                  </button>
+
+                  {showOfferForm && (
+                    <form
+                      onSubmit={handleMakeOffer}
+                      className="border rounded-3 p-3 mt-2 bg-light"
+                    >
+                      <label
+                        htmlFor="offerPrice"
+                        className="form-label fw-semibold"
+                      >
+                        Your offer
+                      </label>
+
+                      <div className="input-group">
+                        <span className="input-group-text">
+                          €
+                        </span>
+
+                        <input
+                          id="offerPrice"
+                          type="number"
+                          className="form-control"
+                          min="0.01"
+                          step="0.01"
+                          value={offerPrice}
+                          onChange={(event) =>
+                            setOfferPrice(event.target.value)
+                          }
+                          placeholder="Enter your offer"
+                          required
+                        />
+
+                        <button
+                          type="submit"
+                          className="btn btn-dark"
+                          disabled={offerSubmitting}
+                        >
+                          {offerSubmitting
+                            ? "Submitting..."
+                            : "Submit Offer"}
+                        </button>
+                      </div>
+
+                      {offerMessage && (
+                        <div className="alert alert-info mt-3 mb-0">
+                          {offerMessage}
+                        </div>
+                      )}
+                    </form>
+                  )}
+
+                </div>
+              ) : (
+                <div className="alert alert-secondary">
+                  This artwork is no longer available.
                 </div>
               )}
 
-              {/* Make an Offer */}
-              <button
-                type="button"
-                className="btn btn-outline-dark btn-lg marketplace-action-btn"
-                onClick={() => {
-                  setShowOfferForm(!showOfferForm);
-                  setOfferMessage("");
-                }}
-              >
-                {showOfferForm
-                  ? "Cancel Offer"
-                  : "Make an Offer"}
-              </button>
+              {/* Request Custom Art */}
+              <div className="d-grid gap-2 mt-3">
 
-              {showOfferForm && (
-                <form
-                  onSubmit={handleMakeOffer}
-                  className="border rounded-3 p-3 mt-2 bg-light"
+                <button
+                  type="button"
+                  className="btn btn-outline-dark btn-lg marketplace-action-btn"
+                  onClick={() => {
+                    setShowCustomForm(!showCustomForm);
+                    setCustomMessage("");
+                  }}
                 >
-                  <label
-                    htmlFor="offerPrice"
-                    className="form-label fw-semibold"
+                  {showCustomForm
+                    ? "Cancel Custom Request"
+                    : "Request Custom Art"}
+                </button>
+
+                {showCustomForm && (
+                  <form
+                    onSubmit={handleCustomRequest}
+                    className="border rounded-3 p-3 bg-light"
                   >
-                    Your offer
-                  </label>
+                    <h5 className="mb-3">
+                      Request Custom Art
+                    </h5>
 
-                  <div className="input-group">
-                    <span className="input-group-text">
-                      €
-                    </span>
+                    <p className="small text-secondary">
+                      Love this artist's style? Tell them what
+                      you'd like them to create for you.
+                    </p>
 
-                    <input
-                      id="offerPrice"
-                      type="number"
-                      className="form-control"
-                      min="0.01"
-                      step="0.01"
-                      value={offerPrice}
-                      onChange={(event) =>
-                        setOfferPrice(event.target.value)
-                      }
-                      placeholder="Enter your offer"
-                      required
-                    />
+                    <div className="mb-3">
+                      <label
+                        htmlFor="customDescription"
+                        className="form-label fw-semibold"
+                      >
+                        What would you like?
+                      </label>
+
+                      <textarea
+                        id="customDescription"
+                        className="form-control"
+                        rows="5"
+                        maxLength="2000"
+                        value={customDescription}
+                        onChange={(event) =>
+                          setCustomDescription(event.target.value)
+                        }
+                        placeholder="Describe the artwork you'd like the artist to create..."
+                        required
+                      />
+                    </div>
+
+                    <div className="mb-3">
+                      <label
+                        htmlFor="customBudget"
+                        className="form-label fw-semibold"
+                      >
+                        Optional Budget (€)
+                      </label>
+
+                      <input
+                        id="customBudget"
+                        type="number"
+                        className="form-control"
+                        min="0.01"
+                        step="0.01"
+                        value={customBudget}
+                        onChange={(event) =>
+                          setCustomBudget(event.target.value)
+                        }
+                        placeholder="e.g. 200"
+                      />
+                    </div>
 
                     <button
                       type="submit"
-                      className="btn btn-dark"
-                      disabled={offerSubmitting}
+                      className="btn btn-dark w-100"
+                      disabled={customSubmitting}
                     >
-                      {offerSubmitting
-                        ? "Submitting..."
-                        : "Submit Offer"}
+                      {customSubmitting
+                        ? "Sending..."
+                        : "Send Custom Request"}
                     </button>
-                  </div>
 
-                  {offerMessage && (
-                    <div className="alert alert-info mt-3 mb-0">
-                      {offerMessage}
-                    </div>
-                  )}
-                </form>
-              )}
+                    {customMessage && (
+                      <div className="alert alert-info mt-3 mb-0">
+                        {customMessage}
+                      </div>
+                    )}
+                  </form>
+                )}
 
-            </div>
-          ) : (
-            <div className="alert alert-secondary">
-              This artwork is no longer available.
-            </div>
-          )}
-
-          {/* Request Custom Art */}
-          <div className="d-grid gap-2 mt-3">
-
-            <button
-              type="button"
-              className="btn btn-outline-dark btn-lg marketplace-action-btn"
-              onClick={() => {
-                setShowCustomForm(!showCustomForm);
-                setCustomMessage("");
-              }}
-            >
-              {showCustomForm
-                ? "Cancel Custom Request"
-                : "Request Custom Art"}
-            </button>
-
-            {showCustomForm && (
-              <form
-                onSubmit={handleCustomRequest}
-                className="border rounded-3 p-3 bg-light"
-              >
-                <h5 className="mb-3">
-                  Request Custom Art
-                </h5>
-
-                <p className="small text-secondary">
-                  Love this artist's style? Tell them what
-                  you'd like them to create for you.
-                </p>
-
-                <div className="mb-3">
-                  <label
-                    htmlFor="customDescription"
-                    className="form-label fw-semibold"
-                  >
-                    What would you like?
-                  </label>
-
-                  <textarea
-                    id="customDescription"
-                    className="form-control"
-                    rows="5"
-                    maxLength="2000"
-                    value={customDescription}
-                    onChange={(event) =>
-                      setCustomDescription(event.target.value)
-                    }
-                    placeholder="Describe the artwork you'd like the artist to create..."
-                    required
-                  />
-                </div>
-
-                <div className="mb-3">
-                  <label
-                    htmlFor="customBudget"
-                    className="form-label fw-semibold"
-                  >
-                    Optional Budget (€)
-                  </label>
-
-                  <input
-                    id="customBudget"
-                    type="number"
-                    className="form-control"
-                    min="0.01"
-                    step="0.01"
-                    value={customBudget}
-                    onChange={(event) =>
-                      setCustomBudget(event.target.value)
-                    }
-                    placeholder="e.g. 200"
-                  />
-                </div>
-
+                {/* Favourites */}
                 <button
-                  type="submit"
-                  className="btn btn-dark w-100"
-                  disabled={customSubmitting}
+                  type="button"
+                  className="btn btn-outline-secondary"
+                  onClick={handleFavourite}
                 >
-                  {customSubmitting
-                    ? "Sending..."
-                    : "Send Custom Request"}
+                  {isFavourite
+                    ? "♥ Remove from Favourites"
+                    : "♡ Add to Favourites"}
                 </button>
 
-                {customMessage && (
-                  <div className="alert alert-info mt-3 mb-0">
-                    {customMessage}
+              </div>
+            </>
+          )}
+
+                    <Link
+                      to="/explore"
+                      className="btn btn-link px-0 mt-4"
+                    >
+                      ← Back to Explore Art
+                    </Link>
+
                   </div>
-                )}
-              </form>
-            )}
-
-            {/* Favourites */}
-            <button
-              type="button"
-              className="btn btn-outline-secondary"
-              onClick={handleFavourite}
-            >
-              {isFavourite ? "♥ Remove from Favourites" : "♡ Add to Favourites"}
-            </button>
-
-          </div>
-
-          <Link
-            to="/explore"
-            className="btn btn-link px-0 mt-4"
-          >
-            ← Back to Explore Art
-          </Link>
-
-        </div>
-      </div>
-    </main>
-  );
-}
+                </div>
+              </main>
+            );
+          }
 
 export default ArtworkDetail;
