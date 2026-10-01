@@ -17,7 +17,9 @@ The project is currently a prototype developed to meet the requirements of my fi
 ## Inspiration and Branding
 The name ArtCircle represents a community of creative people coming together around art. I wanted the branding to feel creative, welcoming and different from a traditional online marketplace.
 
-The logo was inspired by the Citizens of the World flag, which I came across online. I liked the idea of using multiple colours to represent different people coming together as a community. I adapted this idea into the ArtCircle branding and used the same colour palette throughout the website to create a consistent visual identity.
+The logo was inspired by the Citizens of the World flag, which I came across online. I liked the circular design and the idea of the shapes coming together as a symbol of unity. I used this as inspiration for the ArtCircle logo and chose the colours used throughout the logo and website to create a consistent visual identity.
+
+I also chose a soft cream, canvas-like background for the website to create a subtle connection to traditional art and painting. I wanted the overall design to feel warm, creative and welcoming while still keeping the artwork and text easy to see.
 
 The home page also explains the story behind ArtCircle and how my father's experience inspired the project. I originally wanted to include photographs of his artwork, but the photographs available to me were not good enough quality for the website. One of my future plans is to photograph his artwork properly so that it can be included if ArtCircle is developed further.
 
